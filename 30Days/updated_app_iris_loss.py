@@ -26,7 +26,7 @@ def updated_app_iris_loss():
         
         if loss == 'categorical_crossentropy':
             from sklearn.preprocessing import OneHotEncoder
-            encoder = OneHotEncoder(sparse=False)
+            encoder = OneHotEncoder(sparse_output=False)
             y_onehot = encoder.fit_transform(y.reshape(-1, 1))
             model.fit(X_scaled, y_onehot, epochs=50, verbose=0)
             test_loss, test_acc = model.evaluate(X_scaled, y_onehot, verbose=0)

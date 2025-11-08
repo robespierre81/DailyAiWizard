@@ -17,7 +17,7 @@ def iris_loss_demo():
     X_test = scaler.transform(X_test)
     
     # One-hot for categorical_crossentropy
-    encoder = OneHotEncoder(sparse=False)
+    encoder = OneHotEncoder(sparse_output=False)
     y_train_onehot = encoder.fit_transform(y_train.reshape(-1, 1))
     y_test_onehot = encoder.transform(y_test.reshape(-1, 1))
     
