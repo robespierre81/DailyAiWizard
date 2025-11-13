@@ -1,43 +1,30 @@
-st.header("Iris Flower Classification with Full Pipeline")
-# Load data for demo
-iris = load_iris()
-df = pd.DataFrame(iris.data, columns=iris.feature_names)
-df['Species'] = iris.target
-# Feature engineering
-df['Petal_Ratio'] = df['petal length (cm)'] / (df['petal width (cm)'] + 1e-5)
-X = df.drop('Species', axis=1)
-y = df['Species']
-# Full pipeline
-pipeline = Pipeline([
-    ('scaler', StandardScaler()),
-    ('pca', PCA(n_components=2)),
-    ('classifier', RandomForestClassifier(random_state=42))
+(X_train, y_train), (X_test, y_test) = tf.keras.datasets.mnist.load_data()
+X_train = X_train.reshape(-1, 784) / 255.0
+X_test = X_test.reshape(-1, 784) / 255.0
+
+y_train = to_categorical(y_train, 10)
+y_test = to_categorical(y_test, 10)
+
+model = Sequential([
+    Dense(128, activation='relu', input_shape=(784,)),
+    Dense(64, activation='relu'),
+    Dense(10, activation='softmax')
 ])
-param_grid = {
-    'classifier__n_estimators': [100],
-    'classifier__max_depth': [3]
-}
-grid_search = GridSearchCV(pipeline, param_grid, cv=5, scoring='accuracy')
-grid_search.fit(X, y)
-best_pipeline = grid_search.best_estimator_
-# Save pipeline
-joblib.dump(best_pipeline, 'iris_full_pipeline.pkl')
-# CV scores
-cv_scores = cross_val_score(best_pipeline, X, y, cv=5, scoring='accuracy')
-st.subheader("Cross-Validation Scores")
-st.write(f"Average CV Score: {cv_scores.mean():.2f} (+/- {cv_scores.std() * 2:.2f})")
-# User input
-st.subheader("Enter Iris Features")
-sepal_length = st.slider("Sepal Length (cm)", ...
-# Compute engineered feature
-petal_ratio = petal_length / (petal_width + 1e-5)
-# Predict
-input_data = np.array([[sepal_length, sepal_width, petal_length, petal_width, petal_ratio]])
-prediction = best_pipeline.predict(input_data)
-species = iris.target_names[prediction[0]]
-st.subheader(f"Predicted Species: {species}")
-# Evaluation
-y_pred = best_pipeline.predict(X)
-accuracy = accuracy_score(y, y_pred)
-st.subheader("Model Accuracy")
-st.write(f"Accuracy: {accuracy:.2f}")
+model.compile(optimizer='adam', 
+    loss='categorical_crossentropy', metrics=['accuracy'])
+
+history = model.fit(X_train, y_train, 
+    epochs=10, batch_size=128, validation_split=0.2, verbose=1)
+
+test_loss, test_acc = model.evaluate(X_test, y_test, verbose=0)
+print(f"Test Accuracy: {test_acc:.4f}")
+
+# Visualize predictions
+preds = model.predict(X_test[:10])
+plt.figure(figsize=(15, 3))
+for i in range(10):
+    plt.subplot(1, 10, i+1)
+    plt.imshow(X_test[i].reshape(28, 28), cmap='gray')
+    plt.title(np.argmax(preds[i]))
+    plt.axis('off')
+plt.show()
