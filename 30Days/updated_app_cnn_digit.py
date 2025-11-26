@@ -4,6 +4,7 @@ import numpy as np
 from PIL import Image
 import joblib
 import os
+from streamlit_drawable_canvas import st_canvas
 
 def updated_app_cnn_digit():
     st.header("Draw a Digit – CNN Reads It!")
@@ -29,7 +30,7 @@ def updated_app_cnn_digit():
     
     model = tf.keras.models.load_model('cnn_digit_model.h5')
     
-    canvas_result = st.canvas(
+    canvas_result = st_canvas(
         fill_color="black",
         stroke_width=20,
         stroke_color="white",
